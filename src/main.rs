@@ -10,7 +10,7 @@ static ERROR_INVALID_ARGUMENT: u64 = 0;
 static ERROR_OVERFLOW: u64 = 1;
 static ERROR_TAG_CHECKING: u64 = 2; // access the index of an non-tuple val
 static ERROR_OUT_OF_BOUND: u64 = 3; // the index is out-of-bound
-static ERROR_MINUS_INDEX: u64 = 4;
+static ERROR_INDEX_NOT_NONNEGATIVE_NUMBER: u64 = 4; // index is not non-negative number
 
 #[derive(Debug)]
 enum Val {
@@ -41,14 +41,15 @@ enum Instr {
     IOr(Val, Val),
     IXor(Val, Val),
     ICmp(Val, Val),
+    ITest(Val, Val),
     IJmp(Val),
     IJe(Val),
     IJo(Val),
     IJne(Val),
     IJl(Val),
     IJle(Val),
-    // IJz(Val),
-    // IJnz(Val),
+    IJz(Val),
+    IJnz(Val),
     ICmove(Val, Val),
     ICmovne(Val, Val),
     ICmovg(Val, Val),
@@ -56,6 +57,7 @@ enum Instr {
     ICmovl(Val, Val),
     ICmovle(Val, Val),
     IMark(Val),
+    ISal(Val, Val),
     ISar(Val, Val),
     IShl(Val, Val),
     IShr(Val, Val),
@@ -378,20 +380,23 @@ match e {
 
       // check if index is out of bound
       t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::RegOffsetPlus(Reg::RAX, 0)));
+      
       t.push(Instr::ICmp(Val::Reg(Reg::RBX), Val::RegOffsetMinus(Reg::RSP, si * 8)));
       t.push(Instr::IMov(Val::Reg(Reg::RDI), Val::Imm(ERROR_OUT_OF_BOUND)));
-      t.push(Instr::IJle(Val::Mark("snek_error".to_string()))); // beyound bound
-      t.push(Instr::ICmp(Val::Reg(Reg::RBX), Val::Imm(0)));
-      t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::RegOffsetMinus(Reg::RSP, si * 8)));
-      t.push(Instr::ICmp(Val::Reg(Reg::RBX), Val::Imm(0)));
-      t.push(Instr::IMov(Val::Reg(Reg::RDI), Val::Imm(ERROR_MINUS_INDEX)));
-      t.push(Instr::IJl(Val::Mark("snek_error".to_string()))); // below 0
+      t.push(Instr::IJle(Val::Mark("snek_error".to_string())));
 
+      // check if index is non-negtive number
+      t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::RegOffsetMinus(Reg::RSP, si * 8)));
+      t.push(Instr::ITest(Val::Reg(Reg::RBX), Val::Imm(0xf000000000000007)));
+      t.push(Instr::IMov(Val::Reg(Reg::RDI), Val::Imm(ERROR_INDEX_NOT_NONNEGATIVE_NUMBER)));
+      t.push(Instr::IJnz(Val::Mark("snek_error".to_string()))); // detect non-number
+      t.push(Instr::ICmp(Val::Reg(Reg::RBX), Val::Imm(0)));
+      t.push(Instr::IJl(Val::Mark("snek_error".to_string()))); //dect non-negative
 
       t.push(Instr::IAdd(Val::Reg(Reg::RAX), Val::Imm(8)));
 
       // get the result
-      
+      t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::RegOffsetMinus(Reg::RSP, si * 8)));
       t.push(Instr::IAdd(Val::Reg(Reg::RBX), Val::Reg(Reg::RAX)));
       t.push(Instr::IMov(Val::Reg(Reg::RAX), Val::RegOffsetPlus(Reg::RBX, 0)));
       t
@@ -456,7 +461,7 @@ match e {
             t.push(Instr::ICmovne(Val::Reg(Reg::RAX), Val::Reg(Reg::RBX)));
           },
           Op1::IsBool => {
-            t.push(Instr::IAnd(Val::Reg(Reg::RAX), Val::Imm(0xfffffffffffffffb)));
+            t.push(Instr::IAnd(Val::Reg(Reg::RAX), Val::Imm(0xfffffffffffffffb))); //1011 11 b
             t.push(Instr::ICmp(Val::Reg(Reg::RAX), Val::Imm(3)));
             t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::Imm(7)));
             t.push(Instr::ICmove(Val::Reg(Reg::RAX), Val::Reg(Reg::RBX)));
@@ -731,13 +736,15 @@ fn instr_to_str(i: &Instr) -> String {
     Instr::IAnd(val1, val2) => "\nand ".to_owned() + &val_to_str(val1) + ", " + &val_to_str(val2),
     Instr::IXor(val1, val2) => "\nxor ".to_owned() + &val_to_str(val1) + ", " + &val_to_str(val2),
     Instr::ICmp(val1, val2) => "\ncmp ".to_owned() + &val_to_str(val1) + ", " + &val_to_str(val2),
+    Instr::ITest(val1, val2) => "\ntest ".to_owned() + &val_to_str(val1) + ", " + &val_to_str(val2),
     // Instr::IDiv(val) => "\nidiv ".to_owned() + &val_to_str(val),
     Instr::IJmp(val) => "\njmp ".to_owned() + &val_to_str(val),
     Instr::IJe(val) => "\nje ".to_owned() + &val_to_str(val),
     Instr::IJne(val) => "\njne ".to_owned() + &val_to_str(val),
     Instr::IJl(val) => "\njl ".to_owned() + &val_to_str(val),
     Instr::IJle(val) => "\njle ".to_owned() + &val_to_str(val),
-    // Instr::IJz(val) => "\njz ".to_owned() + &val_to_str(val),
+    Instr::IJz(val) => "\njz ".to_owned() + &val_to_str(val),
+    Instr::IJnz(val) => "\njnz ".to_owned() + &val_to_str(val),
     Instr::IJo(val) => "\njo ".to_owned() + &val_to_str(val),
     Instr::ICmove(val1, val2) => "\ncmove ".to_owned() + &val_to_str(val1) + ", " + &val_to_str(val2),
     Instr::ICmovne(val1, val2) => "\ncmovne ".to_owned() + &val_to_str(val1) + ", " + &val_to_str(val2),
@@ -747,6 +754,7 @@ fn instr_to_str(i: &Instr) -> String {
     Instr::ICmovle(val1, val2) => "\ncmovle ".to_owned() + &val_to_str(val1) + ", " + &val_to_str(val2),
     Instr::IMark(Val::Mark(val)) => "\n".to_owned() + val + ":",
     Instr::IOr(val1, val2) => "\nor ".to_owned() + &val_to_str(val1) + ", " + &val_to_str(val2),
+    Instr::ISal(val1, val2) => "\nsal ".to_owned() + &val_to_str(val1) + ", " + &val_to_str(val2),
     Instr::ISar(val1, val2) => "\nsar ".to_owned() + &val_to_str(val1) + ", " + &val_to_str(val2),
     Instr::ICall(funname) => "\ncall ".to_owned() + funname,
     Instr::IShl(val1, val2) => "\nshl ".to_owned() + &val_to_str(val1) + ", " + &val_to_str(val2),

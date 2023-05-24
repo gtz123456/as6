@@ -13,12 +13,12 @@ extern "C" {
 pub extern "C" fn snek_error(errcode: i64) {
     // TODO: print error message according to writeup
     match errcode {
-        0 => eprintln!("Error: invalid argument"),
-        1 => eprintln!("Error: overflow"),
-        2 => eprintln!("Error: access the index of an non-tuple val"),
-        3 => eprintln!("Error: index is out-of-bound"),
-        4 => eprintln!("Error: accessing minus index"),
-        _ => eprintln!("an error ocurred {errcode}"),
+        0 => eprintln!("Runtime error: invalid argument"),
+        1 => eprintln!("Runtime error: overflow"),
+        2 => eprintln!("Runtime error: access the index of an non-tuple val"),
+        3 => eprintln!("Runtime error: index is out-of-bound"),
+        4 => eprintln!("Runtime error: index is not non-negative number"),
+        _ => eprintln!("Runtime error ocurred {errcode}"),
     }
     std::process::exit(1);
 }
