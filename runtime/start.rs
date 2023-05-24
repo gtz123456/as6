@@ -17,6 +17,7 @@ pub extern "C" fn snek_error(errcode: i64) {
         1 => eprintln!("Error: overflow"),
         2 => eprintln!("Error: access the index of an non-tuple val"),
         3 => eprintln!("Error: index is out-of-bound"),
+        4 => eprintln!("Error: minus index"),
         _ => eprintln!("an error ocurred {errcode}"),
     }
     std::process::exit(1);
@@ -40,31 +41,32 @@ fn get_real_content(content: i64) -> String {
     };
     
     if t == "tuple".to_string() {
-        let mut s = "(tuple".to_string();
-        unsafe {
-          let address: *const i64 = (content >> 2) as *const i64;
-          let length = *address;
-          for i in 1..=length {
-              let address: *const i64 = ((content >> 2) + i) as *const i64;
-              let val = *address;
-              s += &" ";
-              s += &get_real_content(val);
-          }
+      let mut s = "(tuple".to_string();
+      unsafe {
+        let mut address: *const i64 = (content >> 2) as *const i64;
+        let length = *address;
+        // println!("length{length}");
+        for i in 1..=length {
+            address = (address as i64 + 8) as *const i64;
+            let val = *address;
+            s += &" ";
+            s += &get_real_content(val);
         }
-        s += &")";
-        s.to_string()
       }
-      else {
-        t.to_string()
-      } 
+      s += &")";
+      s.to_string()
+    }
+    else {
+      t.to_string()
+    } 
 }
 
 fn parse_input(input: &str) -> u64 {
     // TODO: parse the input string into internal value representation
     match input {
-        "true" => 3,
-        "false" => 1,
-        "" => 1,
+        "true" => 7,
+        "false" => 3,
+        "" => 3,
         _ => {
             let t = i64::from_str_radix(&input, 10);
             match t {

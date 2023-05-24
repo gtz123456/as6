@@ -9,7 +9,8 @@ use im::HashMap;
 static ERROR_INVALID_ARGUMENT: u64 = 0;
 static ERROR_OVERFLOW: u64 = 1;
 static ERROR_TAG_CHECKING: u64 = 2; // access the index of an non-tuple val
-static ERROR_OUT_OF_BOUNDS: u64 = 3; // the index is out-of-bound
+static ERROR_OUT_OF_BOUND: u64 = 3; // the index is out-of-bound
+static ERROR_MINUS_INDEX: u64 = 4;
 
 #[derive(Debug)]
 enum Val {
@@ -44,6 +45,7 @@ enum Instr {
     IJe(Val),
     IJo(Val),
     IJne(Val),
+    IJl(Val),
     IJle(Val),
     // IJz(Val),
     // IJnz(Val),
@@ -344,7 +346,7 @@ match e {
         newsi += 1;
       }
 
-      t.push(Instr::IMov(Val::Reg(Reg::RAX), Val::Imm(l)));
+      t.push(Instr::IMov(Val::Reg(Reg::RAX), Val::Imm(l * 8)));
       t.push(Instr::IMov(Val::RegOffsetPlus(Reg::R15, 0), Val::Reg(Reg::RAX)));
       for i in 0..l as i64 {
         t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::RegOffsetMinus(Reg::RSP, (si + i) * 8)));
@@ -361,7 +363,7 @@ match e {
       let mut t = vec![];
       // compile tuple and index
       t.append(&mut compile_to_instrs(index, si, env, ifnum, loopnum, breaknum, funnames));
-      t.push(Instr::IShr(Val::Reg(Reg::RAX), Val::Imm(1))); // save the real length
+      t.push(Instr::IShl(Val::Reg(Reg::RAX), Val::Imm(2))); // save the real length
       t.push(Instr::IMov(Val::RegOffsetMinus(Reg::RSP, si * 8), Val::Reg(Reg::RAX)));
       t.append(&mut compile_to_instrs(tuple, si + 1, env, ifnum, loopnum, breaknum, funnames));
 
@@ -377,16 +379,21 @@ match e {
       // check if index is out of bound
       t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::RegOffsetPlus(Reg::RAX, 0)));
       t.push(Instr::ICmp(Val::Reg(Reg::RBX), Val::RegOffsetMinus(Reg::RSP, si * 8)));
-      t.push(Instr::IMov(Val::Reg(Reg::RDI), Val::Imm(ERROR_OUT_OF_BOUNDS)));
-      t.push(Instr::IJle(Val::Mark("snek_error".to_string())));
+      t.push(Instr::IMov(Val::Reg(Reg::RDI), Val::Imm(ERROR_OUT_OF_BOUND)));
+      t.push(Instr::IJle(Val::Mark("snek_error".to_string()))); // beyound bound
+      t.push(Instr::ICmp(Val::Reg(Reg::RBX), Val::Imm(0)));
+      t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::RegOffsetMinus(Reg::RSP, si * 8)));
+      t.push(Instr::ICmp(Val::Reg(Reg::RBX), Val::Imm(0)));
+      t.push(Instr::IMov(Val::Reg(Reg::RDI), Val::Imm(ERROR_MINUS_INDEX)));
+      t.push(Instr::IJl(Val::Mark("snek_error".to_string()))); // below 0
+
 
       t.push(Instr::IAdd(Val::Reg(Reg::RAX), Val::Imm(8)));
 
       // get the result
-      t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::RegOffsetMinus(Reg::RSP, si * 8)));
+      
       t.push(Instr::IAdd(Val::Reg(Reg::RBX), Val::Reg(Reg::RAX)));
       t.push(Instr::IMov(Val::Reg(Reg::RAX), Val::RegOffsetPlus(Reg::RBX, 0)));
-      //t.push(Instr::IMov(Val::Reg(Reg::RAX), Val::Reg(Reg::RBX)));
       t
     },
 
@@ -728,6 +735,7 @@ fn instr_to_str(i: &Instr) -> String {
     Instr::IJmp(val) => "\njmp ".to_owned() + &val_to_str(val),
     Instr::IJe(val) => "\nje ".to_owned() + &val_to_str(val),
     Instr::IJne(val) => "\njne ".to_owned() + &val_to_str(val),
+    Instr::IJl(val) => "\njl ".to_owned() + &val_to_str(val),
     Instr::IJle(val) => "\njle ".to_owned() + &val_to_str(val),
     // Instr::IJz(val) => "\njz ".to_owned() + &val_to_str(val),
     Instr::IJo(val) => "\njo ".to_owned() + &val_to_str(val),
