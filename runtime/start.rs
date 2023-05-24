@@ -44,7 +44,7 @@ fn get_real_content(content: i64) -> String {
       let mut s = "(tuple".to_string();
       unsafe {
         let mut address: *const i64 = (content >> 2) as *const i64;
-        let length = *address;
+        let length = *address / 8;
         // println!("length{length}");
         for i in 1..=length {
             address = (address as i64 + 8) as *const i64;

@@ -380,7 +380,6 @@ match e {
 
       // check if index is out of bound
       t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::RegOffsetPlus(Reg::RAX, 0)));
-      
       t.push(Instr::ICmp(Val::Reg(Reg::RBX), Val::RegOffsetMinus(Reg::RSP, si * 8)));
       t.push(Instr::IMov(Val::Reg(Reg::RDI), Val::Imm(ERROR_OUT_OF_BOUND)));
       t.push(Instr::IJle(Val::Mark("snek_error".to_string())));

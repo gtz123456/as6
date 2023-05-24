@@ -8,7 +8,7 @@ our_code_starts_here:
   
 mov [rsp-16], rdi
 mov r15, rsi
-mov rax, 18446744073709551606
+mov rax, 7
 shl rax, 2
 mov [rsp-24], rax
 mov rax, 2
