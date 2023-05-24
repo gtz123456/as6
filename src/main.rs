@@ -450,17 +450,17 @@ match e {
           Op1::IsNum => {
             t.push(Instr::IAnd(Val::Reg(Reg::RAX), Val::Imm(1)));
             t.push(Instr::ICmp(Val::Reg(Reg::RAX), Val::Imm(0)));
-            t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::Imm(3)));
+            t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::Imm(7)));
             t.push(Instr::ICmove(Val::Reg(Reg::RAX), Val::Reg(Reg::RBX)));
-            t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::Imm(1)));
+            t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::Imm(3)));
             t.push(Instr::ICmovne(Val::Reg(Reg::RAX), Val::Reg(Reg::RBX)));
           },
           Op1::IsBool => {
             t.push(Instr::IAnd(Val::Reg(Reg::RAX), Val::Imm(0xfffffffffffffffb)));
             t.push(Instr::ICmp(Val::Reg(Reg::RAX), Val::Imm(3)));
-            t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::Imm(3)));
+            t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::Imm(7)));
             t.push(Instr::ICmove(Val::Reg(Reg::RAX), Val::Reg(Reg::RBX)));
-            t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::Imm(1)));
+            t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::Imm(3)));
             t.push(Instr::ICmovne(Val::Reg(Reg::RAX), Val::Reg(Reg::RBX)));
           },
           Op1::Print => {
@@ -528,9 +528,9 @@ match e {
             t.push(Instr::IJe(Val::Mark("snek_error".to_string())));
             t.push(Instr::IMov(Val::Reg(Reg::RAX), Val::RegOffsetMinus(Reg::RSP, (si + 1) * 8)));
             t.push(Instr::ICmp(Val::Reg(Reg::RAX), Val::RegOffsetMinus(Reg::RSP, si * 8)));
-            t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::Imm(3)));
+            t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::Imm(7)));
             t.push(Instr::ICmove(Val::Reg(Reg::RAX), Val::Reg(Reg::RBX)));
-            t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::Imm(1)));
+            t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::Imm(3)));
             t.push(Instr::ICmovne(Val::Reg(Reg::RAX), Val::Reg(Reg::RBX)));
           },
           Op2::Greater => {
@@ -542,9 +542,9 @@ match e {
             t.push(Instr::IJe(Val::Mark("snek_error".to_string())));
             t.push(Instr::IMov(Val::Reg(Reg::RAX), Val::RegOffsetMinus(Reg::RSP, (si + 1) * 8)));
             t.push(Instr::ICmp(Val::Reg(Reg::RAX), Val::RegOffsetMinus(Reg::RSP, si * 8)));
-            t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::Imm(3)));
+            t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::Imm(7)));
             t.push(Instr::ICmovg(Val::Reg(Reg::RAX), Val::Reg(Reg::RBX)));
-            t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::Imm(1)));
+            t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::Imm(3)));
             t.push(Instr::ICmovle(Val::Reg(Reg::RAX), Val::Reg(Reg::RBX)));
           },
           Op2::GreaterEqual => {
@@ -556,9 +556,9 @@ match e {
             t.push(Instr::IJe(Val::Mark("snek_error".to_string())));
             t.push(Instr::IMov(Val::Reg(Reg::RAX), Val::RegOffsetMinus(Reg::RSP, (si + 1) * 8)));
             t.push(Instr::ICmp(Val::Reg(Reg::RAX), Val::RegOffsetMinus(Reg::RSP, si * 8)));
-            t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::Imm(3)));
+            t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::Imm(7)));
             t.push(Instr::ICmovge(Val::Reg(Reg::RAX), Val::Reg(Reg::RBX)));
-            t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::Imm(1)));
+            t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::Imm(3)));
             t.push(Instr::ICmovl(Val::Reg(Reg::RAX), Val::Reg(Reg::RBX)));
           },
           Op2::Less => {
@@ -570,9 +570,9 @@ match e {
             t.push(Instr::IJe(Val::Mark("snek_error".to_string())));
             t.push(Instr::IMov(Val::Reg(Reg::RAX), Val::RegOffsetMinus(Reg::RSP, (si + 1) * 8)));
             t.push(Instr::ICmp(Val::Reg(Reg::RAX), Val::RegOffsetMinus(Reg::RSP, si * 8)));
-            t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::Imm(3)));
+            t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::Imm(7)));
             t.push(Instr::ICmovl(Val::Reg(Reg::RAX), Val::Reg(Reg::RBX)));
-            t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::Imm(1)));
+            t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::Imm(3)));
             t.push(Instr::ICmovge(Val::Reg(Reg::RAX), Val::Reg(Reg::RBX)));
           },
           Op2::LessEqual => {
@@ -584,9 +584,9 @@ match e {
             t.push(Instr::IJe(Val::Mark("snek_error".to_string())));
             t.push(Instr::IMov(Val::Reg(Reg::RAX), Val::RegOffsetMinus(Reg::RSP, (si + 1) * 8)));
             t.push(Instr::ICmp(Val::Reg(Reg::RAX), Val::RegOffsetMinus(Reg::RSP, si * 8)));
-            t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::Imm(3)));
+            t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::Imm(7)));
             t.push(Instr::ICmovle(Val::Reg(Reg::RAX), Val::Reg(Reg::RBX)));
-            t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::Imm(1)));
+            t.push(Instr::IMov(Val::Reg(Reg::RBX), Val::Imm(3)));
             t.push(Instr::ICmovg(Val::Reg(Reg::RAX), Val::Reg(Reg::RBX)));
           },
         }

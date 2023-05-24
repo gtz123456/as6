@@ -8,39 +8,38 @@ our_code_starts_here:
   
 mov [rsp-16], rdi
 mov r15, rsi
-mov rax, 18446744073709551614
-shl rax, 2
+mov rax, 1330
 mov [rsp-24], rax
-mov rax, 2
+mov rax, [rsp-16]
 mov [rsp-32], rax
-mov rax, 4
-mov [rsp-40], rax
-mov rax, 16
-mov [r15+0], rax
-mov rbx, [rsp-32]
-mov [r15+8], rbx
-mov rbx, [rsp-40]
-mov [r15+16], rbx
-mov rax, r15
-shl rax, 2
-add rax, 1
-add r15, 24
-mov rbx, rax
-and rbx, 3
-cmp rbx, 1
-mov rdi, 2
-jne snek_error
-shr rax, 2
-mov rbx, [rax+0]
-cmp rbx, [rsp-24]
-mov rdi, 3
-jle snek_error
-cmp rbx, 0
-mov rbx, [rsp-24]
-cmp rbx, 0
-mov rdi, 4
-jl snek_error
-add rax, 8
-add rbx, rax
-mov rax, [rbx+0]
+xor rax, [rsp-24]
+and rax, 1
+cmp rax, 1
+mov rdi, 0
+je snek_error
+mov rax, [rsp-32]
+cmp rax, [rsp-24]
+mov rbx, 3
+cmove rax, rbx
+mov rbx, 1
+cmovne rax, rbx
+cmp rax, 3
+je elsestart1
+mov rax, 3
+mov [rsp-24], rax
+mov rax, 7
+mov [rsp-32], rax
+or rax, [rsp-24]
+and rax, 1
+cmp rax, 1
+mov rdi, 0
+je snek_error
+mov rax, [rsp-32]
+add rax, [rsp-24]
+mov rdi, 1
+jo snek_error
+jmp elseend1
+elsestart1:
+mov rax, 40
+elseend1:
   ret

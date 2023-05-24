@@ -17,7 +17,7 @@ pub extern "C" fn snek_error(errcode: i64) {
         1 => eprintln!("Error: overflow"),
         2 => eprintln!("Error: access the index of an non-tuple val"),
         3 => eprintln!("Error: index is out-of-bound"),
-        4 => eprintln!("Error: minus index"),
+        4 => eprintln!("Error: accessing minus index"),
         _ => eprintln!("an error ocurred {errcode}"),
     }
     std::process::exit(1);
